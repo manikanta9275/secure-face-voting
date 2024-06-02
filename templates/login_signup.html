@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Volunteer & Administrator Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Jost', sans-serif;
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-container {
+            display: flex;
+            justify-content: space-between;
+            width: 1000px; /* Increased container width */
+        }
+        .login-box {
+            height: 500px;
+            width: 450px; /* Increased login box width */
+            background-color: #eee;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        .login-box h2 {
+            text-align: center;
+            color: #573b8a;
+        }
+        .login-box form {
+            margin-top: 20px;
+        }
+        .login-box input[type="text"],
+        .login-box input[type="email"],
+        .login-box input[type="password"] {
+            width: calc(100% - 40px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+        .login-box button {
+            width: calc(100% - 40px);
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #573b8a;
+            color: #fff;
+            cursor: pointer;
+            outline: none;
+        }
+        .login-box button:hover {
+            background-color: #6d44b8;
+        }
+        .forgot-password {
+            margin-top: 10px;
+        }
+        .forgot-password a {
+            position: relative;
+            left: 300px;
+            color: #573b8a;
+            text-decoration: none;
+        }
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+        .error-message,.error-message_vol {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Volunteer Login</h2>
+            <form action="/volunteer" method="post">
+                <br><br>
+                <input type="text" name="username" placeholder="Username" required="">
+                <br><br>
+                <input type="password" name="password" placeholder="Password" required="">
+                <br><br>  
+                <div class="forgot-password">
+                    <a href="forgot_password_vol">Forgot Password?</a>
+                </div> 
+                <br>
+                <button type="submit">Login</button>
+
+                {% if error_message_vol %}
+                    <p class="error-message_vol">{{ error_message_vol }}</p>
+                {% endif %}
+            </form>
+        </div>
+        <div class="login-box" style="margin-left: 50px;">
+            <h2>Administrator Login</h2>
+            <form action="/administrator" method="post">
+                <br><br>
+                <input type="text" name="username" placeholder="Username" required="">
+                <br><br>
+                <input type="password" name="password" placeholder="Password" required="">
+                <br><br>  
+                <div class="forgot-password">
+                    <a href="forgot_password_adi">Forgot Password?</a>
+                </div> 
+                <br>
+                <button type="submit">Login</button>
+
+                {% if error_message %}
+                    <p class="error-message">{{ error_message }}</p>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</body>
+</html>

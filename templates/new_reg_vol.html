@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Registration</title>
+    <style>
+        body {
+            background-image: url('https://png.pngtree.com/thumb_back/fh260/background/20221226/pngtree-blue-purple-gradient-corporate-website-banner-background-image_1496915.jpg');
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: center;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            font-style: italic;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        #back_butt {
+            width: 100%;
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        #back_butt button {
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: lightblue;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #back_butt button:hover {
+            background-color: green;
+            color: white;
+        }
+
+        .box {
+            width: 80%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .box input[type="text"],
+        .box input[type="password"],
+        .box input[type="tel"],
+        .box select,
+        .box textarea,
+        .box input[type="date"] {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            font-size: 14px;
+        }
+
+        .box input[type="text"]:focus,
+        .box input[type="password"]:focus,
+        .box input[type="tel"]:focus,
+        .box select:focus,
+        .box textarea:focus,
+        .box input[type="date"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        .box button[type="submit"] {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .box button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        #message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Volunteers Registration</h1>
+    <div id="back_butt">
+        <a href="{{ url_for('administrator') }}"><button>Go Back</button></a>
+    </div>
+    <div class="box"> <!-- Adding a div with class "box" for consistent styling -->
+        <form id="registrationForm" action="/register_vol" method="post">
+            <input type="text" id="username" name="username" placeholder="Username" required>
+            <select id="gender" name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="date" id="dob" name="dob" required>
+            <input type="text" id="voter_id" name="voter_id" placeholder="Voter Card ID" required>
+            <input type="tel" id="phone_number" name="phone_number" placeholder="Phone Number" required>
+            <input type="text" id="email" name="email" placeholder="Email" required>
+            <input type="text" id="aadhar_number" name="aadhar_number" placeholder="Aadhar Card Number" required>
+            <textarea id="address" name="address" rows="4" placeholder="Address" required></textarea>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+            <button type="submit">Register</button>
+            <div id="message"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            const formData = new FormData(this);
+
+            fetch('/register_vol', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('message').innerText = data;
+                document.getElementById('registrationForm').reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

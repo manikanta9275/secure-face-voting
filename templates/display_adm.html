@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Administrators</title>
+    <style>
+        body {
+            background-image: url('https://img.freepik.com/free-vector/shiny-white-gray-background-with-wavy-lines_1017-25101.jpg?auto=format&h=200');
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            font-style: italic;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #333;
+            text-shadow: 1px 1px 2px #fff;
+        }
+
+        #back_butt {
+            width: 100%;
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        #back_butt button {
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: lightblue;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #back_butt button:hover {
+            background-color: green;
+            color: white;
+        }
+
+        table {
+            width: 80%;
+            max-width: 1500px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: lightblue;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        thead {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Administrators</h1>
+    <div id="back_butt">
+        <a href="{{ url_for('administrator') }}"><button>Back</button></a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Gender</th>
+                <th>Date of Birth</th>
+                <th>Voter Card ID</th>
+                <th>Phone Number</th>
+                <th>Email</th>
+                <th>Aadhar Card Number</th>
+                <th>Address</th>
+                <th>Password</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for administrator in administrators %}
+            <tr>
+                <td>{{ administrator[0] }}</td>
+                <td>{{ administrator[6] }}</td>
+                <td>{{ administrator[7] }}</td>
+                <td>{{ administrator[4] }}</td>
+                <td>{{ administrator[2] }}</td>
+                <td>{{ administrator[8] }}</td>
+                <td>{{ administrator[3] }}</td>
+                <td>{{ administrator[5] }}</td>
+                <td>{{ administrator[1] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

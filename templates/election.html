@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition</title>
+    <style>
+        
+        #video-container {
+            position: relative;
+            width: 640px;
+            margin-left: 30px;
+            margin-top: 50px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        #video {
+            width: 80%;
+            border: 2px solid #333;
+            position: relative;
+        }
+        #capture-btn, #refresh-btn {
+            margin-left: 160px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius:5px;
+            padding: 10px;
+        }
+        #stop-btn {
+            display: none;
+            margin-left: 150px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #button-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        #button-container button {
+            margin-right: 10px;
+        }
+        #back_butt button {
+            margin-top: 20px;
+            margin-left: 20px;
+            cursor: pointer;
+            padding: 10px 40px;
+            font-size: 16px;
+            background-color: lightblue;
+        }
+        #back_butt button:hover {
+            background-color: green;
+            color: white;
+        }
+        #manual-input {
+            margin-left: 30px;
+            margin-top: 20px;
+            font-size: 18px; 
+        }
+        #manual-input input, #manual-input button {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        #manual-input button{
+            margin-left:300px;
+            margin-top:20px;
+            border-radius:5px;
+        }
+        #manual-input label {
+            font-size: 200pxpx; 
+            font-weight: bold; 
+            color: #333; 
+        }
+        #manual-input button:hover,#capture-btn:hover{
+            background-color:green;
+            color:white;
+        }
+        
+        #result {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        table {
+            width: 750px;
+            margin-left:800px;
+            border-collapse: collapse;
+            color: black;
+        }
+        
+        #table-container {
+            position: absolute;
+            top: 200px; /* Adjust the top position as needed */
+            right: 80px; /* Adjust the right position as needed */
+        }
+        
+        #info-table {
+            width: 750px;
+            border-collapse: collapse;
+            color: black;
+        }
+        
+        
+        th, td {
+            text-align: center;
+            width: 300px;
+            border: 1px solid black;
+            padding: 5px;
+        }
+        .submit-cell {
+            text-align: center;
+        }
+        .submit-btn {
+            cursor: pointer;
+            padding: 3px 6px;
+            font-size: 16px;
+        }
+        #message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 20px;
+            color: red;
+        }
+        body {
+            background-image: url('https://img.freepik.com/premium-vector/abstract-blue-green-gradient-color-effect-background-website-banner-poster-paper-card_120819-307.jpg');
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <div id="back_butt">
+        <a href="{{ url_for('volunteer') }}"><button>Go Back</button></a>
+    </div>
+    <div id="video-container">
+        <video id="video" autoplay></video>
+        <canvas id="canvas" style="display: none;"></canvas>
+        <div id="button-container">
+            <button id="capture-btn">Capture</button>
+            <button id="stop-btn" style="display:none;">Stop</button>
+        </div>
+    </div>
+    <br><br><br>
+    <br>
+    <div id="manual-input">
+        <label for="card-number-input">Enter Card Number:</label>
+        <input type="text" id="card-number-input" placeholder="Card Number">
+        <br>
+        <button id="submit-card-btn">Submit</button>
+    </div>
+    <div id="table-container">
+        <table id="info-table">
+            <thead>
+                <tr>
+                    <th>Card Number</th>
+                    <th>Name</th>
+                    <th>Father's Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="info-body">
+                <!-- Table body will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+    <div id="message"></div>
+    <div id="result"></div>
+    <audio id="audio" loop>
+        <source src="audio.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture-btn');
+        const stopButton = document.getElementById('stop-btn');
+        const audio = document.getElementById('audio');
+        const submitCardButton = document.getElementById('submit-card-btn');
+        const cardNumberInput = document.getElementById('card-number-input');
+        let stream;
+        
+        async function startVideo() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing webcam:', err);
+                alert('Error accessing webcam. Please make sure your camera is connected and permissions are granted.');
+            }
+        }
+        
+        function stopVideo() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+        
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const data = canvas.toDataURL('image/jpeg');
+            stopVideo();
+            recognizeFace(data);
+        });
+        
+        async function recognizeFace(photoData) {
+            try {
+                const response = await fetch('/recognize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ photo: photoData })
+                });
+                const data = await response.json();
+                if (data.status === "Unknown") {
+                    // Handle face not recognized case here if needed
+                } else {
+                    if (data.status === "Person not voted yet") {
+                        displayDetailsInTable(data.cardNumber, data.name, data.fatherName, false);
+                    } else if (data.status === "Person already voted") {
+                        displayDetailsInTable(data.cardNumber, data.name, data.fatherName, true);
+                        document.getElementById('message').innerText = data.status;
+                        const audio = document.getElementById('audio');
+                        audio.src = '/audio.mp3';
+                        audio.play();
+                        stopButton.style.display = 'inline';
+                    }
+                }
+            } catch (err) {
+                console.error('Error recognizing face:', err);
+                alert('Error recognizing face. Please try again later.');
+            }
+        }
+        
+        function displayDetailsInTable(cardNumber, name, fatherName, voted) {
+            const infoBody = document.getElementById('info-body');
+            if (infoBody) {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${cardNumber || ''}</td>
+                    <td>${name || ''}</td>
+                    <td>${fatherName || ''}</td>
+                    <td class="submit-cell">
+                        ${voted ? '' : `<button class="submit-btn" onclick="submitForm('${cardNumber}')">Submit</button>`}
+                    </td>
+                `;
+                infoBody.appendChild(newRow);
+            } else {
+                console.error('Could not find info-body element');
+            }
+        }
+        
+        function clearInfoTable() {
+            const infoBody = document.getElementById('info-body');
+            if (infoBody) {
+                infoBody.innerHTML = '';
+            } else {
+                console.error('Could not find info-body element');
+            }
+        }
+        function submitForm(cardNumber) {
+            const formData = new FormData();
+            formData.append('card_number', cardNumber);
+        
+            fetch('/submit_form', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Form submitted successfully!');
+                } else {
+                    console.error('Failed to submit form.');
+                    alert('Failed to submit form. Please try again later.');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting form:', error);
+                alert('Error submitting form. Please try again later.');
+            });
+        
+            document.getElementById('message').innerText = "";
+            startVideo();
+            clearInfoTable();
+        }
+        
+        submitCardButton.addEventListener('click', async () => {
+            const cardNumber = cardNumberInput.value.trim();
+            if (cardNumber) {
+                try {
+                    const response = await fetch('/fetch_details', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ card_number: cardNumber })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        if (data.status === 'already_voted') {
+                            displayDetailsInTable(data.cardNumber, data.name, data.fatherName, true);
+                            document.getElementById('message').innerText = 'Person already voted';
+                            audio.src = '/audio.mp3';
+                            audio.play();
+                            stopButton.style.display = 'inline';
+                        } else if (data.status === 'not_voted') {
+                            displayDetailsInTable(data.cardNumber, data.name, data.fatherName, false);
+                        } else {
+                            // If not found or failed, show an error message
+                            alert('Card number not found or an error occurred.');
+                        }
+                        // Clear the input field after successful submission
+                        cardNumberInput.value = '';
+                    } else {
+                        // Handle non-OK responses (e.g., server errors)
+                        console.error('Error fetching details:', data.error);
+                        alert('Error fetching details. Please try again later.');
+                    }
+                } catch (err) {
+                    // Handle network errors or other exceptions
+                    console.error('Error fetching details:', err);
+                    alert('Error fetching details. Please try again later.');
+                }
+            } else {
+                alert('Please enter a card number.');
+            }
+        });
+        
+        
+        
+        stopButton.addEventListener('click', () => {
+            document.getElementById('message').innerText = "";
+            document.getElementById('card-number-input').value = ""; // Corrected the id
+            audio.pause();
+            audio.currentTime = 0;
+            stopButton.style.display = "none";
+            startVideo();
+            clearInfoTable();
+        });
+        
+        audio.addEventListener('ended', () => {
+            stopButton.style.display = "none";
+        });
+        
+        startVideo();
+    </script>
+</body>
+</html>
