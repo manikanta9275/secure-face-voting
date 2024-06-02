@@ -1,2 +1,2 @@
-Flask
-mysql-connector-python  # If you are using MySQL
+Flask==3.0.3
+mysql-connector-python== 1.3.0# If you are using MySQL
